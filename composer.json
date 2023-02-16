@@ -1,5 +1,5 @@
 {
-  "name": "chr/randomdata",
+  "name": "rathch/randomdata",
   "description": "TYPO3 extensions to generate new random data or replace existing data with random data",
   "type": "typo3-cms-extension",
   "license": "GPL-3.0-or-later",
