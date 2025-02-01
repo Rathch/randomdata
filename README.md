@@ -4,10 +4,14 @@ TYPO3 extensions to generate new random data or replace existing data with rando
 This extensions uses https://github.com/FakerPHP/Faker and was inspired by https://github.com/georgringer/faker. Thanks go out to the builders, contributors and maintainers of those projects.
 
 ## Requirements
-- TYPO3 CMS 9.5, 10.4 or 11.5
-- PHP 7.2+
+- TYPO3 11.5 12.4
+- PHP 8.1+
 - Licence: GPL 3.0
 
+## install
+```
+composer require windinternet/randomdata
+```
 ## Manual
 After installing randomdata in TYPO3 you can run it using the following command:
 

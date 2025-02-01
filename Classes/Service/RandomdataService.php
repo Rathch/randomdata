@@ -16,25 +16,26 @@ namespace WIND\Randomdata\Service;
 
 use Faker\Factory;
 use Faker\Generator;
-use Symfony\Component\Console\Output\OutputInterface;
-use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Database\Query\QueryBuilder;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WIND\Randomdata\Event\RandomdataEvent;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
-use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
-use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
-use WIND\Randomdata\Exception\ConfigurationFileNotFoundException;
-use WIND\Randomdata\Exception\CountNotFoundForItemException;
-use WIND\Randomdata\Exception\DataHandlerException;
-use WIND\Randomdata\Exception\FieldsNotFoundForItemException;
-use WIND\Randomdata\Exception\PidNotFoundForItemException;
-use WIND\Randomdata\Exception\ProviderException;
-use WIND\Randomdata\Exception\TableNotFoundInTcaException;
-use WIND\Randomdata\Exception\UnknownActionException;
+use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use WIND\Randomdata\Provider\ProviderInterface;
+use WIND\Randomdata\Exception\ProviderException;
+use TYPO3\CMS\Core\EventDispatcher\EventDispatcher;
+use WIND\Randomdata\Exception\DataHandlerException;
+use Symfony\Component\Console\Output\OutputInterface;
+use WIND\Randomdata\Exception\UnknownActionException;
+use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
+use WIND\Randomdata\Exception\PidNotFoundForItemException;
+use WIND\Randomdata\Exception\TableNotFoundInTcaException;
+use WIND\Randomdata\Exception\CountNotFoundForItemException;
+use WIND\Randomdata\Exception\FieldsNotFoundForItemException;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
+use WIND\Randomdata\Exception\ConfigurationFileNotFoundException;
+use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 
 /**
  * Randomdata Service
@@ -81,13 +82,7 @@ class RandomdataService
      */
     protected $newUid = 0;
 
-    /**
-     * @param ObjectManager $objectManager
-     */
-    public function injectObjectManager(ObjectManager $objectManager)
-    {
-        $this->objectManager = $objectManager;
-    }
+
 
     /**
      * Generate random data
@@ -179,7 +174,7 @@ class RandomdataService
         }
 
         /** @var YamlFileLoader $yamlLoader */
-        $yamlLoader = $this->objectManager->get(YamlFileLoader::class);
+        $yamlLoader = GeneralUtility::makeInstance(YamlFileLoader::class);
         $this->configuration = $yamlLoader->load($configurationFile);
     }
 
@@ -269,7 +264,7 @@ class RandomdataService
             $pageQueryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
             $page = $pageQueryBuilder->count('*')->from('pages')->where(
                 $pageQueryBuilder->expr()->eq('uid', $pid)
-            )->execute()->fetchColumn(0);
+            )->executeQuery()->fetchColumn(0);
 
             if ($page !== 1) {
                 throw new PidNotFoundForItemException('Page with uid "' . $pid . '" not found in database for item "' . $configurationKey . '"', 1554380475);
@@ -403,15 +398,16 @@ class RandomdataService
     {
         /** @var QueryBuilder $queryBuilder */
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $records = $queryBuilder->select('uid')->from($table)->where($queryBuilder->expr()->eq('pid', $pid))->execute();
-
+        $records = $queryBuilder->select('uid')->from($table)->where($queryBuilder->expr()->eq('pid', $pid))->executeQuery()->fetchAllAssociative();
+        
         if (!empty($records)) {
             $dataMap = [$table => []];
-
+           
             $this->addToDataMap = [];
             $this->addToCmdMap = [];
-
+          
             foreach ($records as $record) {
+                
                 $data = [];
                 foreach ($fields as $field => $fieldConfiguration) {
                     $fieldConfiguration['__table'] = $table;
@@ -489,9 +485,8 @@ class RandomdataService
      */
     protected function dispatchSignalSlot($name, array $arguments)
     {
-        /** @var Dispatcher $signalSlotDispatcher */
-        $signalSlotDispatcher = GeneralUtility::makeInstance(Dispatcher::class);
-        $signalSlotDispatcher->dispatch(__CLASS__, $name, $arguments);
+        $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
+        $eventDispatcher->dispatch(new RandomdataEvent($name, $arguments));
     }
 
     /**

@@ -1,6 +1,10 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
-if (TYPO3_MODE === 'BE') {
-    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['randomdata']['allowedActions'] = ['insert', 'replace'];
-}
+use TYPO3\CMS\Core\Http\ApplicationType;
+
+call_user_func(static function () {
+
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['randomdata']['allowedActions'] = ['insert', 'replace', 'foo'];
+
+});
