@@ -204,7 +204,7 @@ class RandomdataService
                     $this->generateAndReplaceRecords($configurationKey, $table, $pid, $fields, $itemConfiguration);
                     break;
                 default:
-                    $this->dispatchSignalSlot('generateItemCustomAction', [$configurationKey, $table, $pid, $action, $fields, $itemConfiguration, $this]);
+                    $this->dispatchRandomdataEvent('generateItemCustomAction', [$configurationKey, $table, $pid, $action, $fields, $itemConfiguration, $this]);
                     break;
             }
         } catch(\Throwable $e) {
@@ -469,7 +469,7 @@ class RandomdataService
     }
 
     /**
-     * Dispatch signal slot
+     * Dispatch Randomdata vent
      *
      * @param string $name
      * @param array $arguments
@@ -477,7 +477,7 @@ class RandomdataService
      * @throws InvalidSlotReturnException
      * @return void
      */
-    protected function dispatchSignalSlot($name, array $arguments)
+    protected function dispatchRandomdataEvent($name, array $arguments)
     {
         $eventDispatcher = GeneralUtility::makeInstance(EventDispatcher::class);
         $eventDispatcher->dispatch(new RandomdataEvent($name, $arguments));

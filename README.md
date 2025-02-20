@@ -4,7 +4,7 @@ TYPO3 extensions to generate new random data or replace existing data with rando
 This extensions uses https://github.com/FakerPHP/Faker and was inspired by https://github.com/georgringer/faker. Thanks go out to the builders, contributors and maintainers of those projects.
 
 ## Requirements
-- TYPO3 11.5 12.4
+- TYPO3 11.5, 12.4 or 13.4
 - PHP 8.1+
 - Licence: GPL 3.0
 
