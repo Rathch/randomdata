@@ -211,4 +211,4 @@ You can create a custom provider from your own extension by adding a class which
 You can set your custom provider in the configuration yaml file by setting the full class name in the `provider` option. For example `provider: \My\Custom\Provider`
 
 ## Custom action
-If you need anything other than `insert` or `replace` as action, you can use the `generateItemCustomAction` signal slot. You also need to set your action in the `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['randomdata']['allowedActions']` array.
+If you need anything other than `insert` or `replace` as action, you can use the `RandomdataEvent` Event. You also need to set your action in the `$GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['randomdata']['allowedActions']` array.
