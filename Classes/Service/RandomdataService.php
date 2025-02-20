@@ -62,10 +62,6 @@ class RandomdataService
      */
     protected $faker;
 
-    /**
-     * @var ObjectManager
-     */
-    protected $objectManager;
 
     /**
      * @var array
@@ -100,8 +96,6 @@ class RandomdataService
      * @throws CountNotFoundForItemException
      * @throws DataHandlerException
      * @throws ProviderException
-     * @throws InvalidSlotException
-     * @throws InvalidSlotReturnException
      */
     public function generate($configurationFile, $locale, $output = null)
     {
@@ -264,9 +258,9 @@ class RandomdataService
             $pageQueryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
             $page = $pageQueryBuilder->count('*')->from('pages')->where(
                 $pageQueryBuilder->expr()->eq('uid', $pid)
-            )->executeQuery()->fetchColumn(0);
-
-            if ($page !== 1) {
+            )->executeQuery()->fetchFirstColumn();
+            
+            if ($page[0] !== 1) {
                 throw new PidNotFoundForItemException('Page with uid "' . $pid . '" not found in database for item "' . $configurationKey . '"', 1554380475);
             }
         }
